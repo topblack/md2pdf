@@ -24,4 +24,4 @@ RUN cp -r dist /md2pdf
 RUN cp -r node_modules /md2pdf/node_modules
 RUN cp target/pdfutils*dependencies.jar /md2pdf/pdfutils.jar
 
-ENTRYPOINT ["node", "/md2pdf/index.js"]
+ENTRYPOINT ["node", "/md2pdf/Md2PdfConverter.js"]
