@@ -1,4 +1,4 @@
-import { Configuration } from "./Models";
+import { Configuration } from './Models';
 
 const puppeteer = require('puppeteer');
 
