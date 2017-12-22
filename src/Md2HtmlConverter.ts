@@ -43,6 +43,7 @@ export class Md2HtmlConverter {
     }
 
     public convert = (source: string, target: string) => {
+        source = path.resolve(source);
         let markdownString = fs.readFileSync(source, 'utf-8');
         let mdHtmlString = marked(markdownString);
         let mdParentDir = path.resolve(path.dirname(source));
