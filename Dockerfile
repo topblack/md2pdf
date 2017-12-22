@@ -17,11 +17,7 @@ RUN python -V
 RUN pip --version
 RUN java -version
 
-RUN npm install -g gulp; npm install; gulp
-RUN mvn assembly:assembly -DdescriptorId=jar-with-dependencies
-
-RUN cp -r dist /md2pdf
-RUN cp -r node_modules /md2pdf/node_modules
-RUN cp target/pdfutils*dependencies.jar /md2pdf/pdfutils.jar
+COPY dist /md2pdf
+COPY node_modules /md2pdf/node_modules
 
 ENTRYPOINT ["node", "/md2pdf/Md2PdfConverter.js"]
