@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.perkinelmer.pdfutils.model.OutlineItem;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -28,14 +31,11 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.util.Matrix;
 
-import com.google.gson.Gson;
-import com.perkinelmer.pdfutils.model.OutlineItem;
-
 public class Pager {
 
 	private List<OutlineItem> outlineItems = new LinkedList<OutlineItem>();
-	
-	private List<PDOutlineItem> lastOutlineItemsByLevel = new ArrayList<PDOutlineItem>();
+
+	private List<PDOutlineItem> parentOutlineItems = new ArrayList<PDOutlineItem>();
 
 	private PagerStyle style;
 
@@ -151,7 +151,7 @@ public class Pager {
 	/**
 	 * Constructor.
 	 */
-	public Pager(String tocfile) throws IOException {
+	public Pager(String tocfile, int maxLevel) throws IOException {
 		super();
 
 		this.style = new PagerStyle();
@@ -163,21 +163,33 @@ public class Pager {
 		Path tocFilePath = FileSystems.getDefault().getPath(tocfile);
 		String tocContent = new String(Files.readAllBytes(tocFilePath), "utf-8");
 		Gson gson = new Gson();
-		OutlineItem[] outlineItems = gson.fromJson(tocContent, OutlineItem[].class);
+		OutlineItem[] tocItems = gson.fromJson(tocContent, OutlineItem[].class);
 
-		for (OutlineItem oi : outlineItems) {
-			if (oi.getLvl() <= 3) {
+		OutlineItem lastSeenOi = null;
+		for (OutlineItem oi : tocItems) {
+			int lastSeenOiLevel = lastSeenOi != null ? lastSeenOi.getLvl() : 0;
+			if (oi.getLvl() - lastSeenOiLevel > 1) {
+				int fixedLevel = lastSeenOiLevel + 1;
+				Logger.warn("Unsupported level sequence found at " + oi.getContent() + ", the previous level is " + lastSeenOiLevel);
+				Logger.warn("Set the level of " + oi.getContent() + " to " + fixedLevel);
+				oi.setLvl(fixedLevel);
+			}
+
+			lastSeenOi = oi;
+			if (oi.getLvl() <= maxLevel) {
 				this.outlineItems.add(oi);
 			}
 		}
-		
-		this.lastOutlineItemsByLevel.add(null);
+	}
+
+	private String convertTocContentToDestinationString(String content) {
+		return content.replaceAll("[-\\[\\]^/,'*:.!><~@#$%&;+=?|\"\\\\()\\s]+", "-").replaceAll("-+", "-");
 	}
 
 	private OutlineItem takeOutlineItemInfoByName(String name) {
 		OutlineItem result = null;
 		for (OutlineItem oi : this.outlineItems) {
-			if (oi.getContent().replace('.', '-').replace(' ', '-').equalsIgnoreCase(name)) {
+			if (convertTocContentToDestinationString(oi.getContent()).equalsIgnoreCase(name)) {
 				result = oi;
 				break;
 			}
@@ -186,8 +198,6 @@ public class Pager {
 		if (result != null) {
 			this.outlineItems.remove(result);
 		}
-
-		System.out.println("take: " + name + ", " + (result != null));
 
 		return result;
 	}
@@ -233,45 +243,37 @@ public class Pager {
 
 			int totalPages = doc.getPages().getCount();
 			int currentPage = 1;
+			int lastOutlineLevelHandled = 0;
 
 			for (PDPage page : doc.getPages()) {
 				String message = currentPage + " of " + totalPages;
-				System.out.println(message);
 				currentPage++;
 				PDRectangle pageSize = page.getMediaBox();
 				float stringWidth = font.getStringWidth(message) * fontSize / 1000f;
 
 				float pageWidth = pageSize.getWidth();
-				float pageHeight = pageSize.getHeight();
 				float mainPageNumberX = pageWidth - stringWidth - this.style.margin.right;
-				float mainPageNumberY = this.style.margin.bottom + this.style.mainPageNumberStyle.size / 2;
+				float mainPageNumberY = this.style.margin.bottom + this.style.mainPageNumberStyle.size;
 
-				/*
-				 * // calculate to center of the page int rotation =
-				 * page.getRotation(); boolean rotate = rotation == 90 ||
-				 * rotation == 270;
-				 * 
-				 * float pageWidth = rotate ? pageSize.getHeight() :
-				 * pageSize.getWidth(); float pageHeight = rotate ?
-				 * pageSize.getWidth() : pageSize.getHeight(); float centerX =
-				 * rotate ? 87f : pageWidth - stringWidth - 75f; float centerY =
-				 * rotate ? pageWidth - stringWidth - 75f : 87f;
-				 */
-
+				// Add Table of Content
 				List<PDAnnotation> annotationList = page.getAnnotations();
 				for (PDAnnotation annotation : annotationList) {
+					if (this.outlineItems.size() == 0) {
+						// All items on toc.json have been proceed.
+						break;
+					}
+
 					if (annotation instanceof PDAnnotationLink) {
 						PDAnnotationLink link = (PDAnnotationLink) annotation;
 						PDAction action = link.getAction();
 						if (action instanceof PDActionURI) {
 							PDActionURI uri = (PDActionURI) action;
 						} else if (action != null) {
-							System.out.println("Action: " + action.getClass().getName());
+							Logger.warn("Action: " + action.getClass().getName());
 						} else {
 							PDDestination dest = link.getDestination();
 							if (dest instanceof PDNamedDestination) {
 								PDNamedDestination namedDest = (PDNamedDestination) dest;
-								System.out.println(namedDest.getNamedDestination());
 								PDRectangle rect = annotation.getRectangle();
 
 								PDPageDestination pageDest = doc.getDocumentCatalog()
@@ -321,24 +323,31 @@ public class Pager {
 									contentStream.endText();
 								}
 
-								OutlineItem oi = this
-										.takeOutlineItemInfoByName(((PDNamedDestination) dest).getNamedDestination());
-								if (oi != null) {
+								String destinationString = ((PDNamedDestination) dest).getNamedDestination();
+								OutlineItem oi = this.takeOutlineItemInfoByName(destinationString);
+								Logger.debug(destinationString);
+								if (oi == null) {
+									Logger.warn("No outline item found for " + destinationString);
+								} else {
 									PDOutlineItem bookmark = new PDOutlineItem();
 									bookmark.setDestination(dest);
-									bookmark.setTitle(oi.getContent());
-									
-									if (oi.getLvl() == 1) {
+									String bookmarkTitle = oi.getContent();
+									bookmark.setTitle(bookmarkTitle);
+									if (oi.getLvl() <= lastOutlineLevelHandled) {
+										int levelGap = lastOutlineLevelHandled - oi.getLvl();
+										for (int i = 0; i <= levelGap; i++) {
+											this.parentOutlineItems.remove(this.parentOutlineItems.size() - 1);
+										}
+									}
+									if (this.parentOutlineItems.size() == 0) {
 										outline.addLast(bookmark);
 									} else {
-										this.lastOutlineItemsByLevel.get(oi.getLvl() - 1).addLast(bookmark);
+										PDOutlineItem parentBookmark = this.parentOutlineItems
+												.get(this.parentOutlineItems.size() - 1);
+										parentBookmark.addLast(bookmark);
 									}
-									
-									if (this.lastOutlineItemsByLevel.size() <= oi.getLvl()) {
-										this.lastOutlineItemsByLevel.add(bookmark);
-									} else {
-										this.lastOutlineItemsByLevel.set(oi.getLvl(), bookmark);
-									}
+									this.parentOutlineItems.add(bookmark);
+									lastOutlineLevelHandled = oi.getLvl();
 								}
 							}
 						}
@@ -351,7 +360,7 @@ public class Pager {
 
 				}
 
-				// append the content to the existing stream
+				// Add page numbers on each page
 				try (PDPageContentStream contentStream = new PDPageContentStream(doc, page, AppendMode.APPEND, true,
 						true)) {
 					contentStream.beginText();
@@ -376,6 +385,10 @@ public class Pager {
 				}
 			}
 
+			for (OutlineItem oi : this.outlineItems) {
+				Logger.warn("Unmatched " + convertTocContentToDestinationString(oi.getContent()));
+			}
+
 			outline.openNode();
 			doc.save(outfile);
 		}
@@ -392,8 +405,9 @@ public class Pager {
 		String inputFilePath = args[0];
 		String outputFilePath = args[1];
 		String tocFilePath = args[2];
+		int maxLevel = Integer.parseInt(args[3]);
 
-		Pager app = new Pager(tocFilePath);
+		Pager app = new Pager(tocFilePath, maxLevel);
 
 		app.doIt(inputFilePath, outputFilePath, tocFilePath);
 	}

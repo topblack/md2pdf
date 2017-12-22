@@ -13,6 +13,10 @@ public class Decorator {
 	public static void main(String[] args) throws IOException {
 		String configString = new String(Files.readAllBytes(FileSystems.getDefault().getPath(args[0])), "utf-8");
 		Configuration config = new Gson().fromJson(configString, Configuration.class);
+		if (config.getTocMaxLevel() <= 0) {
+			config.setTocMaxLevel(3);
+		}
+
 		String workingDir = config.getOutputDir();
 		String pathToPDFToBeOverlayed =  workingDir + File.separator + "main.pdf";
 		String pathToOverlayPDF =  workingDir + File.separator + "overlay.pdf";
@@ -22,7 +26,7 @@ public class Decorator {
 		String pathToPagedPDF = workingDir + File.separator + "paged.pdf";
 		String finalPDF = workingDir + File.separator + "final.pdf";
 		Overlayor.main(new String[] {pathToPDFToBeOverlayed, "-useAllPages", pathToOverlayPDF, pathToOverlayedPDF});
-		Pager.main(new String[] {pathToOverlayedPDF, pathToPagedPDF, pathToTocJson});
+		Pager.main(new String[] {pathToOverlayedPDF, pathToPagedPDF, pathToTocJson, Integer.toString(config.getTocMaxLevel())});
 		Merger.main(new String[] {pathToCoverPDF, pathToPagedPDF, finalPDF});
 		
 		MetadataUtils.write(finalPDF);

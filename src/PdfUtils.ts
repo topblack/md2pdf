@@ -12,11 +12,11 @@ export class PdfUtils {
 
     public process = (configFile: string, cb: any) => {
         exec(`java -jar ${this.pdfUtilsPath} ${configFile}`, (err, stdout, stderr) => {
+            console.log(stdout);
             if (err) {
                 console.error(err);
                 return;
             }
-            console.log(stdout);
             cb();
         });
     }

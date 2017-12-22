@@ -8,56 +8,48 @@ public class Configuration {
 	private String templateDir;
 	
 	private Document documentProps;
-	
-	
+
+	private int tocMaxLevel;
+
+	public int getTocMaxLevel() {
+		return this.tocMaxLevel;
+	}
+
+	public void setTocMaxLevel(int maxLevel) {
+		this.tocMaxLevel = maxLevel;
+	}
 
 	public String getSource() {
 		return source;
 	}
 
-
-
 	public void setSource(String source) {
 		this.source = source;
 	}
-
-
 
 	public String getOutputDir() {
 		return outputDir;
 	}
 
-
-
 	public void setOutputDir(String outputDir) {
 		this.outputDir = outputDir;
 	}
-
-
 
 	public String getTemplateDir() {
 		return templateDir;
 	}
 
-
-
 	public void setTemplateDir(String templateDir) {
 		this.templateDir = templateDir;
 	}
-
-
 
 	public Document getDocumentProps() {
 		return documentProps;
 	}
 
-
-
 	public void setDocumentProps(Document documentProps) {
 		this.documentProps = documentProps;
 	}
-
-
 
 	public class Document {
 		private String companyName;

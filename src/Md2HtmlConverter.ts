@@ -80,14 +80,13 @@ export class Md2HtmlConverter {
         let html = '<ul class="tocList">\r\n';
         for (let i = 0; i < tocItems.length; i++) {
             let item = tocItems[i] as TocItem;
-            if (item.lvl > 3) {
+            if (item.lvl > this.config.tocMaxLevel) {
                 continue;
             }
             html += `<li class="tocItemL${item.lvl}">`;
             html += '<a href="#';
             let link = toc.linkify(item.content);
-            console.info(`${item.content} -> ${link}`);
-            html += link.replace(/[|&:;$%@"<>()+,\s\.]+/g, '-').toLowerCase();
+            html += link.replace(/['|&:;$%@"<>()+,=\s\./]+/g, '-').toLowerCase();
             html += '">';
             html += item.content;
             html += '</a>'

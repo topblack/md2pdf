@@ -3,6 +3,7 @@ export interface Configuration {
     outputDir: string;
     templateDir: string;
     documentProps: DocumentProperties;
+    tocMaxLevel: number;
 }
 
 interface DocumentProperties {
