@@ -16,7 +16,7 @@ install:
 script:
   - gulp
   - mvn clean assembly:assembly -DdescriptorId=jar-with-dependencies
-  - mv target\pdfutils-*-jar-with-dependencies.jar dist/pdfutils.jar
+  - mv target/pdfutils-*-jar-with-dependencies.jar dist/pdfutils.jar
   - docker build -t qinling/md2pdf:latest .
 
 after_success:
