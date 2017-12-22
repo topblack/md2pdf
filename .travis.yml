@@ -8,11 +8,9 @@ node_js:
 services:
   - docker
 
-before_install:
+install:
   - apt-get install openjdk-8-jdk -y
   - apt-get install maven -y 
-
-install:
   - npm install
 
 script:
