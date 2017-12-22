@@ -9,8 +9,8 @@ services:
   - docker
 
 install:
-  - apt-get install openjdk-8-jdk -y
-  - apt-get install maven -y 
+  - sudo apt-get install openjdk-8-jdk -y
+  - sudo apt-get install maven -y 
   - npm install
 
 script:
