@@ -10,11 +10,6 @@ RUN apt-get install maven -y
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
-# test install
-RUN npm --version
-RUN node --version
-RUN java -version
-
 COPY dist /md2pdf
 COPY node_modules /md2pdf/node_modules
 
