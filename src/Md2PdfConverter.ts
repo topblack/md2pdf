@@ -29,9 +29,9 @@ class Md2PdfConverter {
     }
 
     public convert = async () => {
-        let sourceMarkdown = this.config.source;
-        let templateFolder = this.config.templateDir;
-        let outputFolder = this.config.outputDir;
+        let sourceMarkdown = this.config.source.replace('\\', path.sep);
+        let templateFolder = this.config.templateDir.replace('\\', path.sep);
+        let outputFolder = this.config.outputDir.replace('\\', path.sep);
         if (!fs.existsSync(outputFolder)) {
             fs.mkdirSync(outputFolder);
         }
