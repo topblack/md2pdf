@@ -10,9 +10,9 @@ class Md2PdfConverter {
 
     constructor(configFile: string) {
         this.config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
-        this.config.source = path.normalize(this.config.source).replace('\\', path.sep);
-        this.config.outputDir = path.normalize(this.config.outputDir).replace('\\', path.sep);
-        this.config.templateDir = path.normalize(this.config.templateDir).replace('\\', path.sep);
+        this.config.source = path.normalize(this.config.source).replace(/\\/g, path.sep);
+        this.config.outputDir = path.normalize(this.config.outputDir).replace(/\\/g, path.sep);
+        this.config.templateDir = path.normalize(this.config.templateDir).replace(/\\/g, path.sep);
         console.info(`Input Markdown: ${this.config.source}`);
         console.info(`Output Dir: ${this.config.outputDir}`);
         console.info(`Template Dir: ${this.config.templateDir}`);
@@ -68,18 +68,18 @@ class Md2PdfConverter {
         mainContentPdfOption.setMargin(1.7, 1, 1.6, 1);
 
         new Md2HtmlConverter(this.config).convert(sourceMarkdown, mainHtmlOutput);
-        let htmlUrl = `file:///${mainHtmlOutput}`.replace('\\', '/');
+        let htmlUrl = `file:///${mainHtmlOutput}`.replace(/\\/g, '/');
         await html2PdfConverter.convert(htmlUrl, mainContentPdfOption, this.config);
 
         let htmlPath = path.join(templateFolder, 'overlay.html');
-        htmlUrl = `file:///${htmlPath}`.replace('\\', '/');
+        htmlUrl = `file:///${htmlPath}`.replace(/\\/g, '/');
         let overlayPdfOption: ExportPdfOption = new ExportPdfOption(overlayPDFOutput);
         overlayPdfOption.setMargin(0.8, 1, 0.8, 1);
         await html2PdfConverter.convert(htmlUrl, overlayPdfOption, this.config);
 
         let coverPdfOption: ExportPdfOption = new ExportPdfOption(coverPDFOutput);
         htmlPath = path.join(templateFolder, 'cover.html');
-        htmlUrl = `file:///${htmlPath}`.replace('\\', '/');
+        htmlUrl = `file:///${htmlPath}`.replace(/\\/g, '/');
         await html2PdfConverter.convert(htmlUrl, coverPdfOption, this.config);
 
         new PdfUtils().process(intermediatesConfig, this.finalize);
