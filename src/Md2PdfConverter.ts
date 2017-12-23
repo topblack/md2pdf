@@ -10,6 +10,9 @@ class Md2PdfConverter {
 
     constructor(configFile: string) {
         this.config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
+        this.config.source = path.normalize(this.config.source);
+        this.config.outputDir = path.normalize(this.config.outputDir);
+        this.config.templateDir = path.normalize(this.config.templateDir);
     }
 
     private removeIntermediates = (parentFolder: string) => {
@@ -25,16 +28,17 @@ class Md2PdfConverter {
         let finalPdfName = `${this.config.documentProps.productName} ${this.config.documentProps.documentName}.pdf`;
         let originalOutputFolder = path.join(this.config.outputDir, '..', finalPdfName);
         fs.renameSync(finalPdfPath, originalOutputFolder);
-        //this.removeIntermediates(this.config.outputDir);
+
+        if (!process.env.KEEP_INTERMEDIATE) {
+            this.removeIntermediates(this.config.outputDir);
+        }
     }
 
     public convert = async () => {
-        let sourceMarkdown = this.config.source.replace('\\', path.sep);
-        this.config.source = sourceMarkdown;
-        let templateFolder = this.config.templateDir.replace('\\', path.sep);
-        this.config.templateDir = templateFolder;
-        let outputFolder = this.config.outputDir.replace('\\', path.sep);
-        this.config.outputDir = outputFolder;
+        let sourceMarkdown = this.config.source;
+        let templateFolder = this.config.templateDir;
+        let outputFolder = this.config.outputDir;
+
         if (!fs.existsSync(outputFolder)) {
             fs.mkdirSync(outputFolder);
         }
