@@ -267,7 +267,7 @@ public class Pager {
 						PDAnnotationLink link = (PDAnnotationLink) annotation;
 						PDAction action = link.getAction();
 						if (action instanceof PDActionURI) {
-							PDActionURI uri = (PDActionURI) action;
+							//PDActionURI uri = (PDActionURI) action;
 						} else if (action != null) {
 							Logger.warn("Action: " + action.getClass().getName());
 						} else {

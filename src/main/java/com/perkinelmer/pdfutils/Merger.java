@@ -2,8 +2,6 @@ package com.perkinelmer.pdfutils;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 
@@ -19,8 +17,6 @@ import org.apache.pdfbox.multipdf.PDFMergerUtility;
  * @author Alexander Kriegisch
  */
 public class Merger {
-	private static final Log LOG = LogFactory.getLog(Merger.class);
-
 	/**
 	 * Infamous main method.
 	 *

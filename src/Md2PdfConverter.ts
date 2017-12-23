@@ -10,9 +10,9 @@ class Md2PdfConverter {
 
     constructor(configFile: string) {
         this.config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
-        this.config.source = path.normalize(this.config.source);
-        this.config.outputDir = path.normalize(this.config.outputDir);
-        this.config.templateDir = path.normalize(this.config.templateDir);
+        this.config.source = path.normalize(this.config.source).replace('\\', path.sep);
+        this.config.outputDir = path.normalize(this.config.outputDir).replace('\\', path.sep);
+        this.config.templateDir = path.normalize(this.config.templateDir).replace('\\', path.sep);
         console.info(`Input Markdown: ${this.config.source}`);
         console.info(`Output Dir: ${this.config.outputDir}`);
         console.info(`Template Dir: ${this.config.templateDir}`);

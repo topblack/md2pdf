@@ -10,8 +10,6 @@ import org.apache.pdfbox.multipdf.Overlay;
 import org.apache.pdfbox.multipdf.Overlay.Position;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-import com.perkinelmer.pdfutils.model.Configuration;
-
 /**
  * 
  * Adds an overlay to an existing PDF document.
