@@ -13,6 +13,9 @@ class Md2PdfConverter {
         this.config.source = path.normalize(this.config.source);
         this.config.outputDir = path.normalize(this.config.outputDir);
         this.config.templateDir = path.normalize(this.config.templateDir);
+        console.info(`Input Markdown: ${this.config.source}`);
+        console.info(`Output Dir: ${this.config.outputDir}`);
+        console.info(`Template Dir: ${this.config.templateDir}`);
     }
 
     private removeIntermediates = (parentFolder: string) => {
