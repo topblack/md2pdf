@@ -9,7 +9,7 @@ class Md2PdfConverter {
     private config: Configuration;
 
     constructor(configFile: string) {
-        configFile = path.normalize(configFile).replace(/\\/g, path.sep);
+        configFile = path.resolve(path.normalize(configFile).replace(/\\/g, path.sep));
         this.config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
         this.config.source = path.normalize(this.config.source).replace(/\\/g, path.sep);
         this.config.outputDir = path.normalize(this.config.outputDir).replace(/\\/g, path.sep);
