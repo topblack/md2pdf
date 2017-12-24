@@ -31,3 +31,4 @@ VOLUME /workspace
 WORKDIR /workspace
 
 ENTRYPOINT ["nodejs", "/md2pdf/Md2PdfConverter.js"]
+CMD ["configFile"]
