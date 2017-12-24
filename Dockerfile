@@ -20,6 +20,18 @@ RUN apt-get update && apt-get install -y wget --no-install-recommends \
     && apt-get purge --auto-remove -y curl \
     && rm -rf /src/*.deb
 
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+
+# Add this application
+COPY dist /md2pdf
+COPY node_modules /md2pdf/node_modules
+
+RUN chmod -R 777 dist
+
+RUN mkdir /workspace
+VOLUME /workspace
+WORKDIR /workspace
+
 # Add pptr user.
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
@@ -28,15 +40,5 @@ RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
 
 # Run user as non privileged.
 USER pptruser
-
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
-
-# Add this application
-COPY dist /md2pdf
-COPY node_modules /md2pdf/node_modules
-
-RUN mkdir /workspace
-VOLUME /workspace
-WORKDIR /workspace
 
 ENTRYPOINT ["/md2pdf/entrypoint.sh"]
