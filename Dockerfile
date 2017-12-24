@@ -30,13 +30,4 @@ RUN mkdir /workspace
 VOLUME /workspace
 WORKDIR /workspace
 
-# Add pptr user.
-RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
-    && mkdir -p /home/pptruser/Downloads \
-    && chown -R pptruser:pptruser /home/pptruser \
-    && chown -R pptruser:pptruser /md2pdf
-
-# Run user as non privileged.
-USER pptruser
-
 ENTRYPOINT ["/md2pdf/entrypoint.sh"]
