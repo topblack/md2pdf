@@ -30,5 +30,4 @@ RUN mkdir /workspace
 VOLUME /workspace
 WORKDIR /workspace
 
-ENTRYPOINT ["nodejs", "/md2pdf/Md2PdfConverter.js"]
-CMD ["configFile"]
+ENTRYPOINT ["/md2pdf/entrypoint.sh"]

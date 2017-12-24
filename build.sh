@@ -11,4 +11,6 @@ fi
 mv target/pdfutils-*-jar-with-dependencies.jar dist/pdfutils.jar
 if [ $? != 0 ]; then
   exit 3
-fi 
+fi
+chmod 777 entrypoint.sh
+cp entrypoint.sh dist/entrypoint.sh
