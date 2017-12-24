@@ -26,4 +26,8 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 COPY dist /md2pdf
 COPY node_modules /md2pdf/node_modules
 
+
+VOLUME /workspace
+WORKDIR /workspace
+
 ENTRYPOINT ["nodejs", "/md2pdf/Md2PdfConverter.js"]
