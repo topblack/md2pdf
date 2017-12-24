@@ -88,7 +88,7 @@ export class ExportPdfOption {
 
 export class Html2PdfConverter {
     public convert = async (url: string, option: ExportPdfOption, config: Configuration) => {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         try {
             const page = await browser.newPage();
             await page.goto(url, { waitUntil: 'networkidle2' });
