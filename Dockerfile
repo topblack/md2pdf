@@ -26,8 +26,6 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 COPY dist /md2pdf
 COPY node_modules /md2pdf/node_modules
 
-RUN chmod -R 777 /md2pdf
-
 RUN mkdir /workspace
 VOLUME /workspace
 WORKDIR /workspace
@@ -36,7 +34,7 @@ WORKDIR /workspace
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser \
-    && chown -R pptruser:pptruser /node_modules
+    && chown -R pptruser:pptruser /md2pdf
 
 # Run user as non privileged.
 USER pptruser
